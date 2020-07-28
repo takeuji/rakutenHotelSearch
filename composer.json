@@ -2,6 +2,11 @@
     "name": "hotel/rakuten-api",
     "description": "Searching the cheapest fee from Rakuten.",
     "type": "project",
+    "autoload": {
+        "psr-4": {
+            "Hotel\\": "src"
+        }
+    },
     "require": {
         "league/csv": "^9.6",
         "ext-json": "^1.7"
