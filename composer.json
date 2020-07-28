@@ -1,0 +1,15 @@
+{
+    "name": "hotel/rakuten-api",
+    "description": "Searching the cheapest fee from Rakuten.",
+    "type": "project",
+    "require": {
+        "league/csv": "^9.6",
+        "ext-json": "^1.7"
+    },
+    "authors": [
+        {
+            "name": "takeuji",
+            "email": "takeuji@gmail.com"
+        }
+    ]
+}
