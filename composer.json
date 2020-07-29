@@ -10,7 +10,8 @@
     "require": {
         "league/csv": "^9.6",
         "ext-json": "^7.4",
-        "hassankhan/config": "^2.1"
+        "hassankhan/config": "^2.1",
+        "symfony/yaml": "^5.1"
     },
     "authors": [
         {
