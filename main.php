@@ -21,7 +21,6 @@ foreach ($hotelNos as $no) {
     foreach ($searchDate as $date) {
         $plan = $rakuten->getBestPricePlan($hotel, $date, 1);
         if ($plan != null) {
-            $strLine .= $plan->getTotalCharge() . ',';
             $csvRow[] = $plan->getTotalCharge();
         } else {
             $csvRow[] = 0;
