@@ -20,17 +20,11 @@ foreach ($hotelNos as $no) {
     $csvRow[] = $hotel->getHotelName();
     foreach ($searchDate as $date) {
         $plan = $rakuten->getBestPricePlan($hotel, $date, 1);
-        if ($plan != null) {
-            $csvRow[] = $plan->getTotalCharge();
-        } else {
-            $csvRow[] = 0;
-        }
+        $price = isset($plan) ? $plan->getTotalCharge() : 0;
+        $csvRow[]= $price;
         $plan = $rakuten->getBestPricePlan($hotel, $date, 2);
-        if ($plan != null) {
-            $csvRow[] = $plan->getTotalCharge();
-        } else {
-            $csvRow[] = 0;
-        }
+        $price = isset($plan) ? $plan->getTotalCharge() : 0;
+        $csvRow[]= $price;
     }
     $csvData[] = $csvRow;
 }

@@ -2,6 +2,8 @@
 
 namespace Hotel;
 
+use DateTime;
+use Exception;
 use Noodlehaus\Config;
 use Noodlehaus\Parser\Yaml;
 
@@ -30,12 +32,12 @@ class RakutenSearch
             $hotelNo = $json->hotels[0]->hotel[0]->hotelBasicInfo->hotelNo;
             $hotelName = $json->hotels[0]->hotel[0]->hotelBasicInfo->hotelName;
             return new HotelInfo($hotelNo, $hotelName);
-        } catch (\Exception $ex) {
+        } catch (Exception $ex) {
         }
         return new HotelInfo('---', '---');
     }
 
-    public function getBestPricePlan(HotelInfo $hotel, \DateTime $checkinDate, int $adultNum = 2, \DateTime $checkoutDate = null): ?StayPlanInfo
+    public function getBestPricePlan(HotelInfo $hotel, DateTime $checkinDate, int $adultNum = 2, DateTime $checkoutDate = null): ?StayPlanInfo
     {
         if (!is_numeric($hotel->getHotelNo())) {
             return null;
@@ -88,7 +90,7 @@ class RakutenSearch
             foreach ($plans as $plan) {
                 $cheapestPlans = StayPlanInfo::compare($cheapestPlans, $plan);
             }
-        } catch (\Exception $ex) {
+        } catch (Exception $ex) {
         }
 
         return $cheapestPlans;
