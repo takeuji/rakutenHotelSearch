@@ -64,7 +64,6 @@ class RakutenSearch
                         continue;
                     }
                     $plan = new StayPlanInfo();
-                    var_dump($roomInfo[0]->roomBasicInfo);
                     $plan->setPlanName($roomInfo[0]->roomBasicInfo->planName)
                         ->setRoomName($roomInfo[0]->roomBasicInfo->roomName)
                         ->setTotalCharge($roomInfo[1]->dailyCharge->total);
