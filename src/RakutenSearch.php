@@ -37,10 +37,10 @@ class RakutenSearch
         return new HotelInfo('---', '---');
     }
 
-    public function getBestPricePlan(HotelInfo $hotel, DateTime $checkinDate, int $adultNum = 2, DateTime $checkoutDate = null): ?StayPlanInfo
+    public function getBestPricePlan(HotelInfo $hotel, DateTime $checkinDate, array $avoidWords = [], int $adultNum = 2, DateTime $checkoutDate = null): ?StayPlanInfo
     {
         if (!is_numeric($hotel->getHotelNo())) {
-            return null;
+            return new StayPlanInfo();
         }
         if ($checkoutDate == null) {
             $checkoutDate = clone $checkinDate;
@@ -56,13 +56,16 @@ class RakutenSearch
 
         $cheapestPlans = null;
         try {
-            $html = file_get_contents($requestURL);
+            if (!$html = @file_get_contents($requestURL)) {
+                return new StayPlanInfo();
+            }
             $json = json_decode($html);
-
+            //var_dump($json);
+            
             $plans = [];
             foreach ($json->hotels[0]->hotel as $hotelPlans) {
                 foreach ($hotelPlans as $roomInfo) {
-                    if (property_exists($roomInfo, 'hotelNo')) {
+                    if(!is_array($roomInfo)) {
                         continue;
                     }
                     $plan = new StayPlanInfo();
@@ -73,14 +76,36 @@ class RakutenSearch
                 }
             }
 
-            // ショートステイのプランやバースデイプランなどは除く
-            // ショートステイのプランしかない場合は、その中で最安値のプランを検索する
+            // プランの中の禁止ワードを除く
+            if (0 < count($avoidWords)) {
+                $normalPlans = array_filter($plans, function (StayPlanInfo $plan) use ($avoidWords, $adultNum) {
+                    $included = false;
+                    foreach ($avoidWords as $word) {
+                        if (strpos($plan->getPlanName(), $word) !== false) {
+                            $included = true;
+                            break;
+                        }
+                    }
+
+                    return !$included;
+                });
+                if ($normalPlans != null && 0 < count($normalPlans)) {
+                    $plans = $normalPlans;
+                }
+            }
+
+            // ダブルと2名利用時のセミダブルを除く
             $normalPlans = array_filter($plans, function (StayPlanInfo $plan) use($adultNum) {
-                return !$plan->isShortStay()
-                        && !$plan->isDouble()
-                        && strpos($plan->getPlanName(), 'バースデ') !== false
-                        && strpos($plan->getPlanName(), 'シニア') !== false
-                        && ($adultNum == 2 && !$plan->isSemiDouble());
+                return !$plan->isDouble()
+                    && ($adultNum == 2 && !$plan->isSemiDouble());
+            });
+            if ($normalPlans != null && 0 < count($normalPlans)) {
+                $plans = $normalPlans;
+            }
+
+            // ショートステイのプランを除く
+            $normalPlans = array_filter($plans, function (StayPlanInfo $plan) use($adultNum) {
+                return !$plan->isShortStay();
             });
             if ($normalPlans != null && 0 < count($normalPlans)) {
                 $plans = $normalPlans;
@@ -92,7 +117,7 @@ class RakutenSearch
             }
         } catch (Exception $ex) {
         }
-
+var_dump($cheapestPlans);
         return $cheapestPlans;
     }
 }
@@ -145,7 +170,7 @@ class StayPlanInfo
 {
     private ?string $planName;
     private ?string $roomName;
-    private int $totalCharge;
+    private int $totalCharge = 0;
 
     public static function compare(?StayPlanInfo $plan1, ?StayPlanInfo $plan2, int $adultNum = 1): ?StayPlanInfo
     {

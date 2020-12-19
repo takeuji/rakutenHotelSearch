@@ -14,17 +14,21 @@ $hotelNos = $io->getHotelsFromHotelNoCSV('hotel.csv');
 $searchDate = $io->getSearchDateFromDateCSV('date.csv');
 
 $csvData = [];
+
+$avoidWord = ['シニア','バースデ', 'レイト', 'レディース', '18時', '19時'];
 foreach ($hotelNos as $no) {
     $csvRow = [];
     $hotel = $rakuten->getHotel($no);
     $csvRow[] = $hotel->getHotelName();
     foreach ($searchDate as $date) {
-        $plan = $rakuten->getBestPricePlan($hotel, $date, 1);
+        $plan = $rakuten->getBestPricePlan($hotel, $date, $avoidWord, 1);
         $price = isset($plan) ? $plan->getTotalCharge() : 0;
         $csvRow[]= $price;
-        $plan = $rakuten->getBestPricePlan($hotel, $date, 2);
+        $plan = $rakuten->getBestPricePlan($hotel, $date, $avoidWord, 2);
         $price = isset($plan) ? $plan->getTotalCharge() : 0;
         $csvRow[]= $price;
+        
+        sleep(1);
     }
     $csvData[] = $csvRow;
 }
