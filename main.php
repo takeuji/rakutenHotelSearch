@@ -3,6 +3,7 @@
 use League\Csv\Exception as CSVException;
 use League\Csv\Reader;
 use League\Csv\Writer;
+use Hotel\RoomType;
 
 require_once "vendor/autoload.php";
 
@@ -24,7 +25,10 @@ foreach ($hotelNos as $no) {
         $plan = $rakuten->getBestPricePlan($hotel, $date, $avoidWord, 1);
         $price = isset($plan) ? $plan->getTotalCharge() : 0;
         $csvRow[]= $price;
-        $plan = $rakuten->getBestPricePlan($hotel, $date, $avoidWord, 2);
+        $plan = $rakuten->getBestPricePlan($hotel, $date, $avoidWord, 2, [RoomType::DOUBLE, RoomType::SEMI_DOUBLE]);
+        $price = isset($plan) ? $plan->getTotalCharge() : 0;
+        $csvRow[]= $price;
+        $plan = $rakuten->getBestPricePlan($hotel, $date, $avoidWord, 2, [RoomType::TWIN]);
         $price = isset($plan) ? $plan->getTotalCharge() : 0;
         $csvRow[]= $price;
         

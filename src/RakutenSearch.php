@@ -37,7 +37,7 @@ class RakutenSearch
         return new HotelInfo('---', '---');
     }
 
-    public function getBestPricePlan(HotelInfo $hotel, DateTime $checkinDate, array $avoidWords = [], int $adultNum = 2, DateTime $checkoutDate = null): ?StayPlanInfo
+    public function getBestPricePlan(HotelInfo $hotel, DateTime $checkinDate, array $avoidWords = [], int $adultNum = 2, array $roomType = [RoomType::NON], DateTime $checkoutDate = null): ?StayPlanInfo
     {
         if (!is_numeric($hotel->getHotelNo())) {
             return new StayPlanInfo();
@@ -94,12 +94,24 @@ class RakutenSearch
                 }
             }
 
-            // ダブルと2名利用時のセミダブルを除く
-            $normalPlans = array_filter($plans, function (StayPlanInfo $plan) use($adultNum) {
-                return !$plan->isDouble()
-                    && ($adultNum == 2 && !$plan->isSemiDouble());
+            $normalPlans = array_filter($plans, function (StayPlanInfo $plan) use($adultNum, $roomType) {
+                if (in_array(RoomType::NON, $roomType)) {
+                    // ダブルと2名利用時のセミダブルを除く
+                    return !$plan->isDouble()
+                        && ($adultNum == 2 && !$plan->isSemiDouble());
+                } else if (in_array(RoomType::DOUBLE, $roomType) &&
+                            in_array(RoomType::SEMI_DOUBLE, $roomType)) {
+                    return $plan->isDouble() || $plan->isSemiDouble();
+                } else if (in_array(RoomType::DOUBLE, $roomType)) {
+                    return $plan->isDouble();
+                } else if (in_array(RoomType::TWIN, $roomType)) {
+                    return !$plan->isDouble() && !$plan->isSemiDouble();
+                } else {
+                    return true;
+                }
             });
-            if ($normalPlans != null && 0 < count($normalPlans)) {
+            if ((in_array(RoomType::NON, $roomType) && $normalPlans != null && 0 < count($normalPlans)) ||
+                !in_array(RoomType::NON, $roomType)) {
                 $plans = $normalPlans;
             }
 
@@ -117,7 +129,6 @@ class RakutenSearch
             }
         } catch (Exception $ex) {
         }
-var_dump($cheapestPlans);
         return $cheapestPlans;
     }
 }
@@ -290,4 +301,12 @@ class StayPlanInfo
         return $this;
     }
 
+}
+
+class RoomType {
+  const NON = 0; // 指定なし
+  const SINGLE = 1;
+  const DOUBLE = 2;
+  const SEMI_DOUBLE = 3;
+  const TWIN = 4;
 }
