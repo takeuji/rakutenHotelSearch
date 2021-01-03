@@ -16,23 +16,42 @@ $searchDate = $io->getSearchDateFromDateCSV('date.csv');
 
 $csvData = [];
 
+$roomType = [[RoomType::NON],[RoomType::DOUBLE, RoomType::SEMI_DOUBLE],[RoomType::TWIN]];
 $avoidWord = ['シニア','バースデ', 'レイト', 'レディース', '18時', '19時'];
 foreach ($hotelNos as $no) {
-    $csvRow = [];
     $hotel = $rakuten->getHotel($no);
+    $time = 0;
+
+    $csvRow = [];
     $csvRow[] = $hotel->getHotelName();
     foreach ($searchDate as $date) {
-        $plan = $rakuten->getBestPricePlan($hotel, $date, $avoidWord, 1);
+        $plan = $rakuten->getBestPricePlan($hotel, $date, $avoidWord, 1, $roomType[0]);
         $price = isset($plan) ? $plan->getTotalCharge() : 0;
-        $csvRow[]= $price;
-        $plan = $rakuten->getBestPricePlan($hotel, $date, $avoidWord, 2, [RoomType::DOUBLE, RoomType::SEMI_DOUBLE]);
+        $csvRow[] = $price;
+        if ($time % 2 == 0) sleep(1);
+        $time++;
+    }
+    $csvData[] = $csvRow;
+
+    $csvRow = [];
+    $csvRow[] = $hotel->getHotelName();
+    foreach ($searchDate as $date) {
+        $plan = $rakuten->getBestPricePlan($hotel, $date, $avoidWord, 2, $roomType[1]);
         $price = isset($plan) ? $plan->getTotalCharge() : 0;
-        $csvRow[]= $price;
-        $plan = $rakuten->getBestPricePlan($hotel, $date, $avoidWord, 2, [RoomType::TWIN]);
+        $csvRow[] = $price;
+        if ($time % 2 == 0) sleep(1);
+        $time++;
+    }
+    $csvData[] = $csvRow;
+
+    $csvRow = [];
+    $csvRow[] = $hotel->getHotelName();
+    foreach ($searchDate as $date) {
+        $plan = $rakuten->getBestPricePlan($hotel, $date, $avoidWord, 2, $roomType[2]);
         $price = isset($plan) ? $plan->getTotalCharge() : 0;
-        $csvRow[]= $price;
-        
-        sleep(1);
+        $csvRow[] = $price;
+        if ($time % 2 == 0) sleep(1);
+        $time++;
     }
     $csvData[] = $csvRow;
 }
