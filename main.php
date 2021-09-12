@@ -17,7 +17,7 @@ $searchDate = $io->getSearchDateFromDateCSV('date.csv');
 $csvData = [];
 
 $roomType = [[RoomType::NON],[RoomType::DOUBLE, RoomType::SEMI_DOUBLE],[RoomType::TWIN]];
-$avoidWord = ['シニア','バースデ', 'レイト', 'レディース', '18時', '19時'];
+$avoidWord = ['シニア','バースデ', '誕生日', 'レイト', 'レディース', '18時', '19時'];
 foreach ($hotelNos as $no) {
     $hotel = $rakuten->getHotel($no);
     $time = 0;
